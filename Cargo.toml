@@ -1,0 +1,9 @@
+[package]
+name = "haskell-parser"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+pest = "2.6"
+pest_derive = "2.6"
+lazy_static = "1.4"

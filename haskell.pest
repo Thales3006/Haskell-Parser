@@ -1,0 +1,18 @@
+WHITESPACE = _{ " " }
+
+program = _{ SOI ~ (stmt ~ NEWLINE)* ~ stmt? ~ EOI }
+
+stmt = { integer ~ (op ~ integer)* }
+
+integer = @{ ASCII_DIGIT+}
+
+op = _{ add | sub | mul | div }
+add = { "+" }
+sub = { "-" }
+mul = { "*" }
+div = { "/" }
+
+
+
+
+
