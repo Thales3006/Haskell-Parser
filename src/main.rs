@@ -14,7 +14,7 @@ fn main(){
 }
 
 mod tests {
-
+    
     #[test]
     fn checkout_grammar() {
         use super::*;
@@ -23,8 +23,11 @@ mod tests {
         .expect("Error while reading the file");
         
         let parsed = HaskellParser::parse(Rule::program, file.as_str());
-        assert!(parsed.is_ok());
+        if let Err(error) = &parsed {
+            println!("{:#?}", error);
+        }
 
+        assert!(parsed.is_ok());
         println!("{:#?}", parsed.unwrap());
     }
 }
