@@ -1,8 +1,7 @@
-fac1:: Int -> Int
-fac1 0 = 1
-fac1 n = n * fac1 (n-1)
+fac:: Int -> Int
+fac 0 = 1
+fac n = n * fac (n-1)
 
-fac2:: Int -> Int
-fac2 n 
-    | n==0 = 1
-    | otherwise = n * fac2   (n-1)
+add :: Int -> Int
+add n = n+1
+list = [3, add 3+1]
