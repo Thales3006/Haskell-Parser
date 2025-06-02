@@ -1,11 +1,43 @@
-WHITESPACE = _{ " " }
+// special rules
+WHITESPACE = _{ " " | "\t" }
 
+// main program structure
 program = _{ SOI ~ (stmt ~ NEWLINE)* ~ stmt? ~ EOI }
 
-stmt = { integer ~ (op ~ integer)* }
+stmt = _{ func }
 
-integer = @{ ASCII_DIGIT+}
+// function body
+func = _{ func_declaration | func_definition }
+func_declaration = { ident ~ "::" ~ func_type }
+func_definition = { ident ~ patterns ~ definition }
 
+// function arguments
+patterns = { pattern* }
+pattern = _{ ident | literal | wildcard }
+wildcard = { "_" }
+
+// function definition
+definition = { ("=" ~ expression) | guard+ }
+guard = { NEWLINE? ~ "|" ~ ("otherwise" | expression) ~ "=" ~ expression }
+expression = { ident | literal }
+
+// constants
+ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+literal = _{ decimal | integer }
+integer = @{ ASCII_DIGIT+ }
+decimal = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+}
+
+// types
+datatype = _{ int | float | char | bool | list | ("(" ~ func_type ~ ")") }
+func_type = { datatype ~ ("->" ~ datatype)* }
+int = { "Int" }
+float = { "Float" }
+char = { "Char" }
+bool = { "Bool" }
+list = { "[" ~ datatype ~ "]" }
+
+
+// operations
 op = _{ add | sub | mul | div }
 add = { "+" }
 sub = { "-" }
