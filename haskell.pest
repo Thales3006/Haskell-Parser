@@ -2,7 +2,7 @@
 WHITESPACE = _{ " " | "\t" }
 
 // main program structure
-program = _{ SOI ~ (stmt ~ NEWLINE)* ~ stmt? ~ EOI }
+program = _{ SOI ~ (stmt? ~ NEWLINE)* ~ stmt? ~ EOI }
 
 stmt = _{ func }
 
@@ -18,14 +18,19 @@ wildcard = { "_" }
 
 // function definition
 definition = { ("=" ~ expression) | guard+ }
-guard = { NEWLINE? ~ "|" ~ ("otherwise" | expression) ~ "=" ~ expression }
-expression = { ident | literal }
+guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
+expression = { ("(" ~ expression ~ ")") | func_call | ident | literal }
+func_call = { ident ~ expression+ }
 
 // constants
 ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
-literal = _{ decimal | integer }
+literal = _{ decimal | integer | boolean }
 integer = @{ ASCII_DIGIT+ }
 decimal = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+}
+otherwise = { "otherwise" }
+boolean = { true | false}
+true = { "True" }
+false = { "False" }
 
 // types
 datatype = _{ int | float | char | bool | list | ("(" ~ func_type ~ ")") }
@@ -38,11 +43,12 @@ list = { "[" ~ datatype ~ "]" }
 
 
 // operations
-op = _{ add | sub | mul | div }
+op = _{ add | sub | mul | div | eq }
 add = { "+" }
 sub = { "-" }
 mul = { "*" }
 div = { "/" }
+eq = { "==" }
 
 
 
