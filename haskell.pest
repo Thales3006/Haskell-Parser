@@ -2,54 +2,88 @@
 WHITESPACE = _{ " " | "\t" }
 
 // main program structure
-program = _{ SOI ~ (stmt? ~ NEWLINE)* ~ stmt? ~ EOI }
+program = _{ SOI ~ ((stmt | comment)? ~ NEWLINE)* ~ (stmt | comment)? ~ EOI }
 
-stmt = _{ func }
+stmt = _{ constant }
+
+comment = { "--" ~ (!NEWLINE ~ ANY)* }
 
 // function body
-func = _{ func_declaration | func_definition }
-func_declaration = { ident ~ "::" ~ func_type }
-func_definition = { ident ~ patterns ~ definition }
+constant = _{ declaration | definition }
+declaration = { ident ~ "::" ~ func_type }
+definition = { ident ~ arguments ~ result }
 
 // function arguments
-patterns = { pattern* }
+arguments = { pattern* }
 pattern = _{ ident | literal | wildcard }
 wildcard = { "_" }
 
 // function definition
-definition = { ("=" ~ expression) | guard+ }
+result = { ("=" ~ expression) | guard+ }
 guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
-expression = { ("(" ~ expression ~ ")") | func_call | ident | literal }
-func_call = { ident ~ expression+ }
+expression = _{ func_call | atom }
+atom = _{ "(" ~ expression ~ ")" | literal | ident }
 
-// constants
+// function calling
+func_call = _{ func_infix | func_prefix }
+func_prefix = { ident ~ atom+ | uni_op ~ atom }
+func_infix = { atom ~ "`" ~ ident ~ "`" ~ atom | (func_prefix | atom) ~ bin_op ~ expression }
+
+
+// literals, reserved words and variables
 ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
-literal = _{ decimal | integer | boolean }
+
+literal = _{ decimal | integer | bool | list}
 integer = @{ ASCII_DIGIT+ }
-decimal = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+}
+decimal = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+list = { "[" ~ (expression ~ ("," ~ expression)*)? ~ "]" }
+
 otherwise = { "otherwise" }
-boolean = { true | false}
+
+bool = { true | false}
 true = { "True" }
 false = { "False" }
 
 // types
-datatype = _{ int | float | char | bool | list | ("(" ~ func_type ~ ")") }
+datatype = _{ primitive_type | list_type | ("(" ~ func_type ~ ")") }
+primitive_type = _{ int_type | float_type | char_type | bool_type }
 func_type = { datatype ~ ("->" ~ datatype)* }
-int = { "Int" }
-float = { "Float" }
-char = { "Char" }
-bool = { "Bool" }
-list = { "[" ~ datatype ~ "]" }
+int_type = { "Int" }
+float_type = { "Float" }
+char_type = { "Char" }
+bool_type = { "Bool" }
+list_type = { "[" ~ datatype ~ "]" }
 
+uni_op = _{ negative | xor }
+negative = { "-" }
 
-// operations
-op = _{ add | sub | mul | div | eq }
+// binary operations (2 arguments)
+bin_op = _{ arithmetic | comparison | logical | mix_op }
+
+arithmetic = _{ add | sub | mul | div }
 add = { "+" }
 sub = { "-" }
 mul = { "*" }
 div = { "/" }
-eq = { "==" }
 
+
+comparison = _{ equal | not_equal | greater | lesser | great_or_equal | less_or_equal }
+equal = { "==" }
+not_equal = { "!=" }
+greater = { ">" }
+lesser = { "<" }
+great_or_equal = { ">=" }
+less_or_equal = { "<=" }
+
+logical = _{ and | or | xor }
+and = { "&&" }
+or = { "||" }
+xor = { "xor" }
+
+mix_op = { cons | concat | composition }
+cons = { ":" }
+concat = { "++" }
+composition = { "." }
 
 
 
