@@ -23,11 +23,12 @@ use inline_colorization::*;
     };
 
     for pair in ast{
-        println!("{spaces}{style_reset}{color_green}{:?} {style_bold}{color_yellow}{:?}", pair.as_rule(), pair.as_str());
+        println!("{spaces}{color_green}{:?} {style_bold}{color_yellow}{:?}{style_reset}", pair.as_rule(), pair.as_str());
         print_ast(pair.into_inner(), offset+1);
     }
 }
 
+#[cfg(test)]
 mod tests {
     
     #[test]
