@@ -1,6 +1,6 @@
 use std::fs;
 
-use pest::Parser;
+use pest::{iterators::Pairs, Parser};
 
 #[derive(pest_derive::Parser)]
 #[grammar = "haskell.pest"]
@@ -10,7 +10,22 @@ fn main(){
     let file = fs::read_to_string("tests/test_0.hs")
         .expect("Error while reading the file");
         
-        let _parsed = HaskellParser::parse(Rule::program, file.as_str());
+        let parsed = HaskellParser::parse(Rule::program, file.as_str());
+        print_ast(parsed.unwrap(), 0);
+}
+
+fn print_ast(ast : Pairs<'_, Rule>, offset: usize){
+use inline_colorization::*;
+    let spaces = if offset > 0 {
+        format!("{}|   ", "    ".repeat(offset))
+    } else {
+        String::new()
+    };
+
+    for pair in ast{
+        println!("{spaces}{style_reset}{color_green}{:?} {style_bold}{color_yellow}{:?}", pair.as_rule(), pair.as_str());
+        print_ast(pair.into_inner(), offset+1);
+    }
 }
 
 mod tests {
@@ -28,7 +43,7 @@ mod tests {
         }
 
         assert!(parsed.is_ok());
-        println!("{:#?}", parsed.unwrap());
+        print_ast(parsed.unwrap(), 0);
     }
 
     #[test]
