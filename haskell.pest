@@ -2,15 +2,15 @@
 WHITESPACE = _{ " " | "\t" }
 
 // main program structure
-program = _{ SOI ~ ((stmt | comment)? ~ NEWLINE)* ~ (stmt | comment)? ~ EOI }
+program = _{ SOI ~ (stmt? ~ NEWLINE)* ~ stmt? ~ EOI }
 
-stmt = _{ constant }
+stmt = _{ constant | comment }
 
 comment = { "--" ~ (!NEWLINE ~ ANY)* }
 
 // function body
-constant = _{ declaration | definition }
-declaration = { ident ~ "::" ~ func_type }
+constant = { declaration | definition }
+declaration = { ident ~ "::" ~ (func_type | datatype) }
 definition = { ident ~ arguments ~ result }
 
 // function arguments
@@ -21,19 +21,19 @@ wildcard = { "_" }
 // function definition
 result = { ("=" ~ expression) | guard+ }
 guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
-expression = _{ func_call | atom }
+expression = { exp ~ (bin_op ~ exp)* }
+exp = _{ func_call | atom }
 atom = _{ "(" ~ expression ~ ")" | literal | ident }
 
 // function calling
 func_call = _{ func_infix | func_prefix }
 func_prefix = { ident ~ atom+ | uni_op ~ atom }
-func_infix = { atom ~ "`" ~ ident ~ "`" ~ atom | (func_prefix | atom) ~ bin_op ~ expression }
-
+func_infix = { atom ~ "`" ~ ident ~ "`" ~ atom }
 
 // literals, reserved words and variables
 ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
 
-literal = _{ decimal | integer | bool | list}
+literal = { decimal | integer | bool | list}
 integer = @{ ASCII_DIGIT+ }
 decimal = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 list = { "[" ~ (expression ~ ("," ~ expression)*)? ~ "]" }
@@ -47,7 +47,7 @@ false = { "False" }
 // types
 datatype = _{ primitive_type | list_type | ("(" ~ func_type ~ ")") }
 primitive_type = _{ int_type | float_type | char_type | bool_type }
-func_type = { datatype ~ ("->" ~ datatype)* }
+func_type = { datatype ~ ("->" ~ datatype)+ }
 int_type = { "Int" }
 float_type = { "Float" }
 char_type = { "Char" }
@@ -55,6 +55,7 @@ bool_type = { "Bool" }
 list_type = { "[" ~ datatype ~ "]" }
 
 uni_op = _{ negative | xor }
+
 negative = { "-" }
 
 // binary operations (2 arguments)
