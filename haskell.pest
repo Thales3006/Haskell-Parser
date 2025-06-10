@@ -4,9 +4,9 @@ WHITESPACE = _{ " " | "\t" }
 // main program structure
 program = _{ SOI ~ (stmt? ~ NEWLINE)* ~ stmt? ~ EOI }
 
-stmt = _{ constant | comment }
+stmt = _{ constant | ("--" ~ comment) }
 
-comment = { "--" ~ (!NEWLINE ~ ANY)* }
+comment = { (!NEWLINE ~ ANY)* }
 
 // function body
 constant = _{ declaration | definition }
