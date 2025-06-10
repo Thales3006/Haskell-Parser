@@ -9,9 +9,9 @@ stmt = _{ constant | comment }
 comment = { "--" ~ (!NEWLINE ~ ANY)* }
 
 // function body
-constant = { declaration | definition }
+constant = _{ declaration | definition }
 declaration = { ident ~ "::" ~ (func_type | datatype) }
-definition = { ident ~ arguments ~ result }
+definition = { ident ~ arguments ~ body }
 
 // function arguments
 arguments = { pattern* }
@@ -19,16 +19,17 @@ pattern = _{ ident | literal | wildcard }
 wildcard = { "_" }
 
 // function definition
-result = { ("=" ~ expression) | guard+ }
+body = { ("=" ~ expression) | guard+ }
 guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
-expression = { exp ~ (bin_op ~ exp)* }
-exp = _{ func_call | atom }
+
+// evaluabe expressions
+expression = { exp ~ (func_infix ~ exp)* }
+exp = _{ func_prefix | atom }
 atom = _{ "(" ~ expression ~ ")" | literal | ident }
 
 // function calling
-func_call = _{ func_infix | func_prefix }
 func_prefix = { ident ~ atom+ | uni_op ~ atom }
-func_infix = { atom ~ "`" ~ ident ~ "`" ~ atom }
+func_infix = { ("`" ~ ident ~ "`") | bin_op }
 
 // literals, reserved words and variables
 ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
@@ -81,7 +82,7 @@ and = { "&&" }
 or = { "||" }
 xor = { "xor" }
 
-mix_op = { cons | concat | composition }
+mix_op = _{ cons | concat | composition }
 cons = { ":" }
 concat = { "++" }
 composition = { "." }
