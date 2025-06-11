@@ -1,24 +1,30 @@
 mod ast;
 mod ast_build;
 
-use std::fs;
+use std::{fs};
 
 use crate::{
     ast::{HaskellParser, Rule},
     ast_build::build_tree,
 };
+use inline_colorization::*;
 use pest::{Parser, iterators::Pairs};
 
 fn main() {
     let file = fs::read_to_string("tests/test_0.hs").expect("Error while reading the file");
 
-    let parsed = HaskellParser::parse(Rule::program, file.as_str()).unwrap();
-
-    println!("{:#?}", build_tree(parsed));
+    let parsed = HaskellParser::parse(Rule::program, file.as_str());
+    match parsed {
+        Ok(parsed) => {
+            println!("{:#?}", build_tree(parsed));
+        }
+        Err(err) => {
+            println!("{style_bold}{color_red}ERRO! {style_reset}{:#?}", err);
+        }
+    }
 }
 
 pub fn print_ast(ast: Pairs<'_, Rule>, offset: usize) {
-    use inline_colorization::*;
     let spaces = if offset > 0 {
         format!("{}|   ", "    ".repeat(offset))
     } else {
