@@ -29,7 +29,7 @@ atom = _{ ("(" ~ expression ~ ")") | literal | ident }
 // function calling
 func_prefix = { (ident | uni_op | ("(" ~ bin_op ~ ")")) ~ args }
 args = { atom+ }
-func_infix = { ("`" ~ ident ~ "`") | bin_op }
+func_infix = _{ ("`" ~ ident ~ "`") | bin_op }
 
 // literals, reserved words and variables
 ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
