@@ -105,23 +105,25 @@ fn build_expression(pair: Pair<Rule>) -> Expression {
                 let mut it = primary.into_inner();
                 Expression::PrefixFuncCall {
                     function: it.next().unwrap().as_str().to_string(),
-                    args: it.next().into_iter().map(build_expression).collect(),
+                    args: it.map(build_atom).collect(),
                 }
             }
-            Rule::expression => build_expression(primary),
-            Rule::literal => {
-                Expression::Literal(build_literal(primary.into_inner().next().unwrap()))
-            }
-            Rule::ident => Expression::Ident(primary.as_str().to_string()),
-
-            _ => unreachable!(),
+            _ => build_atom(primary),
         })
-        .map_infix(|lhs, infix, rhs|
-  Expression::InfixFuncCall {
+        .map_infix(|lhs, infix, rhs| Expression::InfixFuncCall {
             left: Box::new(lhs),
             function: infix.as_str().to_string(),
             right: Box::new(rhs),
-       
         })
         .parse(pair.into_inner())
+}
+
+fn build_atom(pair: Pair<Rule>) -> Expression {
+    match pair.as_rule() {
+        Rule::expression => build_expression(pair),
+        Rule::literal => Expression::Literal(build_literal(pair.into_inner().next().unwrap())),
+        Rule::ident => Expression::Ident(pair.as_str().to_string()),
+
+        _ => unreachable!(),
+    }
 }

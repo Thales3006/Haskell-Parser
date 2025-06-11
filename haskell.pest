@@ -27,8 +27,7 @@ expression = { (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
 atom = _{ ("(" ~ expression ~ ")") | literal | ident }
 
 // function calling
-func_prefix = { (ident | uni_op | ("(" ~ bin_op ~ ")")) ~ args }
-args = { atom+ }
+func_prefix = { (ident | uni_op | ("(" ~ bin_op ~ ")")) ~ atom+ }
 func_infix = _{ ("`" ~ ident ~ "`") | bin_op }
 
 // literals, reserved words and variables

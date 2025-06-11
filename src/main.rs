@@ -1,7 +1,7 @@
 mod ast;
 mod ast_build;
 
-use std::{fs};
+use std::fs;
 
 use crate::{
     ast::{HaskellParser, Rule},
