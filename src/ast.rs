@@ -49,13 +49,11 @@ pub enum GuardCondition {
 
 #[derive(Debug)]
 pub enum Expression {
-    BinaryOp {
-        left: Box<Expression>,
-        op: BinOp,
-        right: Box<Expression>,
-    },
-    FuncCall {
-        function: Box<Expression>,
+    Literal(Literal),
+    Ident(String),
+
+    PrefixFuncCall {
+        function: String,
         args: Vec<Expression>,
     },
     InfixFuncCall {
@@ -63,14 +61,6 @@ pub enum Expression {
         function: String,
         right: Box<Expression>,
     },
-    Atom(Atom),
-}
-
-#[derive(Debug)]
-pub enum Atom {
-    Paren(Box<Expression>),
-    Literal(Literal),
-    Ident(String),
 }
 
 #[derive(Debug)]
@@ -81,51 +71,12 @@ pub enum Literal {
     List(Vec<Expression>),
 }
 
-#[derive(Debug)]
-pub enum BinOp {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Equal,
-    NotEqual,
-    Greater,
-    Lesser,
-    GreaterEq,
-    LesserEq,
-    And,
-    Or,
-    Xor,
-    Cons,
-    Concat,
-    Composition,
-}
-
 #[derive(Debug, Clone)]
 pub enum TypeExpr {
-    Primitive(Primitive),
-    List(Box<TypeExpr>),
-    Func(Vec<TypeExpr>),
-}
-
-#[derive(Debug, Clone)]
-pub enum Primitive {
     Int,
     Float,
     Char,
     Bool,
-}
-
-#[derive(Debug)]
-pub enum Expr {
-    Integer(i32),
-    Float(f32),
-    Bool(bool),
-    List(Vec<Expr>),
-    Function(String, Vec<Expr>),
-    BinOp {
-        lhs: Box<Expr>,
-        op: BinOp,
-        rhs: Box<Expr>,
-    },
+    List(Box<TypeExpr>),
+    Func(Vec<TypeExpr>),
 }
