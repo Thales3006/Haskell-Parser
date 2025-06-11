@@ -23,12 +23,12 @@ body = { ("=" ~ expression) | guard+ }
 guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
 
 // evaluabe expressions
-expression = { exp ~ (func_infix ~ exp)* }
-exp = _{ func_prefix | atom }
-atom = _{ "(" ~ expression ~ ")" | literal | ident }
+expression = { (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
+atom = _{ ("(" ~ expression ~ ")") | literal | ident }
 
 // function calling
-func_prefix = { ident ~ atom+ | uni_op ~ atom }
+func_prefix = { (ident | uni_op | ("(" ~ bin_op ~ ")")) ~ args }
+args = { atom+ }
 func_infix = { ("`" ~ ident ~ "`") | bin_op }
 
 // literals, reserved words and variables
@@ -55,7 +55,7 @@ char_type = { "Char" }
 bool_type = { "Bool" }
 list_type = { "[" ~ datatype ~ "]" }
 
-uni_op = _{ negative | xor }
+uni_op = _{ negative }
 
 negative = { "-" }
 
