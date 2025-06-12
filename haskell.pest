@@ -19,7 +19,8 @@ pattern = _{ ident | literal | wildcard }
 wildcard = { "_" }
 
 // function definition
-body = { ("=" ~ expression) | guard+ }
+body = _{ ("=" ~ expression) | guards }
+guards = { guard+ }
 guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
 
 // evaluabe expressions
@@ -68,7 +69,7 @@ mul = { "*" }
 div = { "/" }
 
 
-comparison = _{ equal | not_equal | greater | lesser | great_or_equal | less_or_equal }
+comparison = _{ equal | not_equal | great_or_equal | less_or_equal | greater | lesser }
 equal = { "==" }
 not_equal = { "!=" }
 greater = { ">" }
