@@ -71,16 +71,15 @@ div = { "/" }
 
 comparison = _{ equal | not_equal | great_or_equal | less_or_equal | greater | lesser }
 equal = { "==" }
-not_equal = { "!=" }
+not_equal = { "/=" }
 greater = { ">" }
 lesser = { "<" }
 great_or_equal = { ">=" }
 less_or_equal = { "<=" }
 
-logical = _{ and | or | xor }
+logical = _{ and | or }
 and = { "&&" }
 or = { "||" }
-xor = { "xor" }
 
 mix_op = _{ cons | concat | composition }
 cons = { ":" }
