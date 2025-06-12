@@ -16,7 +16,7 @@ fn main() {
     let parsed = HaskellParser::parse(Rule::program, file.as_str());
     match parsed {
         Ok(parsed) => {
-            println!("{:#?}", build_tree(parsed));
+            println!("{style_bold}{:#?}{style_reset}", build_tree(parsed));
         }
         Err(err) => {
             println!("{style_bold}{color_red}ERRO! {style_reset}{:#?}", err);
