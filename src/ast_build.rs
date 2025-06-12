@@ -12,6 +12,14 @@ lazy_static::lazy_static! {
         use Rule::*;
 
         PrattParser::new()
+            .op(Op::infix(or, Left))
+            .op(Op::infix(and, Left))
+            .op(
+                Op::infix(less_or_equal, Left) | Op::infix(great_or_equal, Left)
+                |Op::infix(lesser, Left) | Op::infix(greater, Left)
+                |Op::infix(equal, Left) | Op::infix(not_equal, Left)
+            )
+            .op(Op::infix(cons, Left) | Op::infix(concat, Left))
             .op(Op::infix(add, Left) | Op::infix(sub, Left))
             .op(Op::infix(mul, Left) | Op::infix(div, Left))
     };
@@ -37,7 +45,7 @@ fn build_statement(pair: Pair<Rule>) -> Statement {
             Statement::Definition {
                 name: it.next().unwrap().as_str().to_string(),
                 args: it.next().unwrap().into_inner().map(build_pattern).collect(),
-                body: Body::Expression(build_expression(it.next().unwrap())),
+                body: build_body(it.next().unwrap()),
             }
         }
         Rule::comment => Statement::Comment(pair.as_str().to_string()),
@@ -48,6 +56,30 @@ fn build_statement(pair: Pair<Rule>) -> Statement {
             rule,
             pair.as_str()
         ),
+    }
+}
+
+fn build_body(pair: Pair<Rule>) -> Body {
+    match pair.as_rule() {
+        Rule::expression => Body::Expression(build_expression(pair)),
+        Rule::guards => {
+            let it = pair.into_inner();
+            Body::Guards(it.map(build_guard).collect())
+        }
+        _ => unreachable!(),
+    }
+}
+
+fn build_guard(pair: Pair<Rule>) -> Guard {
+    let mut it = pair.into_inner();
+    let condition = it.next().unwrap();
+    Guard {
+        condition: match condition.as_rule() {
+            Rule::otherwise => Expression::Literal(Literal::Bool(true)),
+            Rule::expression => build_expression(condition),
+            _ => unreachable!(),
+        },
+        result: build_expression(it.next().unwrap()),
     }
 }
 
@@ -103,17 +135,16 @@ fn build_expression(pair: Pair<Rule>) -> Expression {
         .map_primary(|primary| match primary.as_rule() {
             Rule::func_prefix => {
                 let mut it = primary.into_inner();
-                Expression::PrefixFuncCall {
+                Expression::FuncCall {
                     function: it.next().unwrap().as_str().to_string(),
                     args: it.map(build_atom).collect(),
                 }
             }
             _ => build_atom(primary),
         })
-        .map_infix(|lhs, infix, rhs| Expression::InfixFuncCall {
-            left: Box::new(lhs),
+        .map_infix(|lhs, infix, rhs| Expression::FuncCall {
             function: infix.as_str().to_string(),
-            right: Box::new(rhs),
+            args: vec![lhs, rhs],
         })
         .parse(pair.into_inner())
 }

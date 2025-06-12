@@ -37,14 +37,8 @@ pub enum Body {
 
 #[derive(Debug)]
 pub struct Guard {
-    pub condition: GuardCondition,
+    pub condition: Expression,
     pub result: Expression,
-}
-
-#[derive(Debug)]
-pub enum GuardCondition {
-    Otherwise,
-    Expression(Expression),
 }
 
 #[derive(Debug)]
@@ -52,14 +46,9 @@ pub enum Expression {
     Literal(Literal),
     Ident(String),
 
-    PrefixFuncCall {
+    FuncCall {
         function: String,
         args: Vec<Expression>,
-    },
-    InfixFuncCall {
-        left: Box<Expression>,
-        function: String,
-        right: Box<Expression>,
     },
 }
 
