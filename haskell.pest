@@ -1,17 +1,90 @@
-WHITESPACE = _{ " " }
+// special rules
+WHITESPACE = _{ " " | "\t" }
 
-program = _{ SOI ~ (stmt ~ NEWLINE)* ~ stmt? ~ EOI }
+// main program structure
+program = _{ SOI ~ (stmt? ~ NEWLINE)* ~ stmt? ~ EOI }
 
-stmt = { integer ~ (op ~ integer)* }
+stmt = _{ constant | ("--" ~ comment) }
 
-integer = @{ ASCII_DIGIT+}
+comment = { (!NEWLINE ~ ANY)* }
 
-op = _{ add | sub | mul | div }
+// function body
+constant = _{ declaration | definition }
+declaration = { ident ~ "::" ~ (func_type | datatype) }
+definition = { ident ~ arguments ~ body }
+
+// function arguments
+arguments = { pattern* }
+pattern = _{ ident | literal | wildcard }
+wildcard = { "_" }
+
+// function definition
+body = _{ ("=" ~ expression) | guards }
+guards = { guard+ }
+guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
+
+// evaluabe expressions
+expression = { (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
+atom = _{ ("(" ~ expression ~ ")") | literal | ident }
+
+// function calling
+func_prefix = { (ident | uni_op | ("(" ~ bin_op ~ ")")) ~ atom+ }
+func_infix = _{ ("`" ~ ident ~ "`") | bin_op }
+
+// literals, reserved words and variables
+ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+
+literal = { decimal | integer | bool | list}
+integer = @{ ASCII_DIGIT+ }
+decimal = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+list = { "[" ~ (expression ~ ("," ~ expression)*)? ~ "]" }
+
+otherwise = { "otherwise" }
+
+bool = { true | false}
+true = { "True" }
+false = { "False" }
+
+// types
+datatype = _{ primitive_type | list_type | ("(" ~ func_type ~ ")") }
+primitive_type = _{ int_type | float_type | char_type | bool_type }
+func_type = { datatype ~ ("->" ~ datatype)+ }
+int_type = { "Int" }
+float_type = { "Float" }
+char_type = { "Char" }
+bool_type = { "Bool" }
+list_type = { "[" ~ datatype ~ "]" }
+
+uni_op = _{ negative }
+
+negative = { "-" }
+
+// binary operations (2 arguments)
+bin_op = _{ arithmetic | comparison | logical | mix_op }
+
+arithmetic = _{ add | sub | mul | div }
 add = { "+" }
 sub = { "-" }
 mul = { "*" }
 div = { "/" }
 
+
+comparison = _{ equal | not_equal | great_or_equal | less_or_equal | greater | lesser }
+equal = { "==" }
+not_equal = { "/=" }
+greater = { ">" }
+lesser = { "<" }
+great_or_equal = { ">=" }
+less_or_equal = { "<=" }
+
+logical = _{ and | or }
+and = { "&&" }
+or = { "||" }
+
+mix_op = _{ cons | concat | composition }
+cons = { ":" }
+concat = { "++" }
+composition = { "." }
 
 
 
