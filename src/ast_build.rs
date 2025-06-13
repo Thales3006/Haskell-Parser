@@ -21,6 +21,7 @@ lazy_static::lazy_static! {
             )
             .op(Op::infix(cons, Left) | Op::infix(concat, Left))
             .op(Op::infix(add, Left) | Op::infix(sub, Left))
+            .op(Op::prefix(negative))
             .op(Op::infix(mul, Left) | Op::infix(div, Left))
     };
 }
@@ -141,6 +142,10 @@ fn build_expression(pair: Pair<Rule>) -> Expression {
                 }
             }
             _ => build_atom(primary),
+        })
+        .map_prefix(|prefix, rhs|Expression::FuncCall {
+            function: prefix.as_str().to_string(),
+            args: vec![rhs],
         })
         .map_infix(|lhs, infix, rhs| Expression::FuncCall {
             function: infix.as_str().to_string(),

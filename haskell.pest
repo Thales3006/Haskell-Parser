@@ -24,11 +24,11 @@ guards = { guard+ }
 guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
 
 // evaluabe expressions
-expression = { (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
+expression = { uni_op? ~ (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
 atom = _{ ("(" ~ expression ~ ")") | literal | ident }
 
 // function calling
-func_prefix = { (ident | uni_op | ("(" ~ bin_op ~ ")")) ~ atom+ }
+func_prefix = { (ident | ("(" ~ bin_op ~ ")")) ~ atom+ }
 func_infix = _{ ("`" ~ ident ~ "`") | bin_op }
 
 // literals, reserved words and variables
