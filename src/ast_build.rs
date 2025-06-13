@@ -12,6 +12,7 @@ lazy_static::lazy_static! {
         use Rule::*;
 
         PrattParser::new()
+            .op(Op::infix(application, Left))
             .op(Op::infix(or, Left))
             .op(Op::infix(and, Left))
             .op(
@@ -21,7 +22,10 @@ lazy_static::lazy_static! {
             )
             .op(Op::infix(cons, Left) | Op::infix(concat, Left))
             .op(Op::infix(add, Left) | Op::infix(sub, Left))
+            .op(Op::prefix(negative))
             .op(Op::infix(mul, Left) | Op::infix(div, Left))
+            .op(Op::infix(exp_int, Left) | Op::infix(exp_float, Left) | Op::infix(exp_frac, Left))
+            .op(Op::infix(composition, Left) | Op::infix(indexing, Left))
     };
 }
 
@@ -119,7 +123,11 @@ fn build_literal(pair: Pair<Rule>) -> Literal {
     match pair.as_rule() {
         Rule::integer => Literal::Integer(i64::from_str(pair.as_str()).unwrap()),
         Rule::decimal => Literal::Decimal(f64::from_str(pair.as_str()).unwrap()),
-        // RULE BOOL MISSING
+        Rule::bool => Literal::Bool(match pair.into_inner().next().unwrap().as_rule(){
+            Rule::true_literal => true,
+            Rule::false_literal => false,
+            _ => unreachable!(),
+        }),
         Rule::list => Literal::List(pair.into_inner().map(build_expression).collect()),
 
         rule => panic!(
@@ -141,6 +149,10 @@ fn build_expression(pair: Pair<Rule>) -> Expression {
                 }
             }
             _ => build_atom(primary),
+        })
+        .map_prefix(|prefix, rhs|Expression::FuncCall {
+            function: prefix.as_str().to_string(),
+            args: vec![rhs],
         })
         .map_infix(|lhs, infix, rhs| Expression::FuncCall {
             function: infix.as_str().to_string(),

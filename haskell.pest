@@ -24,11 +24,11 @@ guards = { guard+ }
 guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
 
 // evaluabe expressions
-expression = { (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
+expression = { uni_op? ~ (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
 atom = _{ ("(" ~ expression ~ ")") | literal | ident }
 
 // function calling
-func_prefix = { (ident | uni_op | ("(" ~ bin_op ~ ")")) ~ atom+ }
+func_prefix = { (ident | ("(" ~ bin_op ~ ")")) ~ atom+ }
 func_infix = _{ ("`" ~ ident ~ "`") | bin_op }
 
 // literals, reserved words and variables
@@ -41,9 +41,9 @@ list = { "[" ~ (expression ~ ("," ~ expression)*)? ~ "]" }
 
 otherwise = { "otherwise" }
 
-bool = { true | false}
-true = { "True" }
-false = { "False" }
+bool = { true_literal | false_literal }
+true_literal = { "True" }
+false_literal = { "False" }
 
 // types
 datatype = _{ primitive_type | list_type | ("(" ~ func_type ~ ")") }
@@ -60,13 +60,17 @@ uni_op = _{ negative }
 negative = { "-" }
 
 // binary operations (2 arguments)
-bin_op = _{ arithmetic | comparison | logical | mix_op }
+bin_op = _{ arithmetic | comparison | logical | list_op | func_op }
 
-arithmetic = _{ add | sub | mul | div }
+arithmetic = _{ add | sub | mul | div | exp }
 add = { "+" }
 sub = { "-" }
 mul = { "*" }
 div = { "/" }
+exp = _{ exp_int | exp_frac | exp_float }
+exp_int = { "^" }
+exp_frac = { "^^" }
+exp_float = { "**" }
 
 
 comparison = _{ equal | not_equal | great_or_equal | less_or_equal | greater | lesser }
@@ -81,10 +85,15 @@ logical = _{ and | or }
 and = { "&&" }
 or = { "||" }
 
-mix_op = _{ cons | concat | composition }
+list_op = _{ cons | concat | indexing }
 cons = { ":" }
 concat = { "++" }
+indexing = { "!!" }
+
+func_op= _{ composition  | application }
 composition = { "." }
+application = { "$" }
+
 
 
 
