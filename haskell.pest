@@ -60,13 +60,17 @@ uni_op = _{ negative }
 negative = { "-" }
 
 // binary operations (2 arguments)
-bin_op = _{ arithmetic | comparison | logical | mix_op }
+bin_op = _{ arithmetic | comparison | logical | list_op | func_op }
 
-arithmetic = _{ add | sub | mul | div }
+arithmetic = _{ add | sub | mul | div | exp }
 add = { "+" }
 sub = { "-" }
 mul = { "*" }
 div = { "/" }
+exp = _{ exp_int | exp_frac | exp_float }
+exp_int = { "^" }
+exp_frac = { "^^" }
+exp_float = { "**" }
 
 
 comparison = _{ equal | not_equal | great_or_equal | less_or_equal | greater | lesser }
@@ -81,10 +85,15 @@ logical = _{ and | or }
 and = { "&&" }
 or = { "||" }
 
-mix_op = _{ cons | concat | composition }
+list_op = _{ cons | concat | indexing }
 cons = { ":" }
 concat = { "++" }
+indexing = { "!!" }
+
+func_op= _{ composition  | application }
 composition = { "." }
+application = { "$" }
+
 
 
 

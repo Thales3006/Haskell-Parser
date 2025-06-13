@@ -12,6 +12,7 @@ lazy_static::lazy_static! {
         use Rule::*;
 
         PrattParser::new()
+            .op(Op::infix(application, Left))
             .op(Op::infix(or, Left))
             .op(Op::infix(and, Left))
             .op(
@@ -23,6 +24,8 @@ lazy_static::lazy_static! {
             .op(Op::infix(add, Left) | Op::infix(sub, Left))
             .op(Op::prefix(negative))
             .op(Op::infix(mul, Left) | Op::infix(div, Left))
+            .op(Op::infix(exp_int, Left) | Op::infix(exp_float, Left) | Op::infix(exp_frac, Left))
+            .op(Op::infix(composition, Left) | Op::infix(indexing, Left))
     };
 }
 
