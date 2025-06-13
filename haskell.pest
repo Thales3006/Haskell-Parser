@@ -41,9 +41,9 @@ list = { "[" ~ (expression ~ ("," ~ expression)*)? ~ "]" }
 
 otherwise = { "otherwise" }
 
-bool = { true | false}
-true = { "True" }
-false = { "False" }
+bool = { true_literal | false_literal }
+true_literal = { "True" }
+false_literal = { "False" }
 
 // types
 datatype = _{ primitive_type | list_type | ("(" ~ func_type ~ ")") }

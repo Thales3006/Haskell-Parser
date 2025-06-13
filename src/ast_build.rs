@@ -120,7 +120,11 @@ fn build_literal(pair: Pair<Rule>) -> Literal {
     match pair.as_rule() {
         Rule::integer => Literal::Integer(i64::from_str(pair.as_str()).unwrap()),
         Rule::decimal => Literal::Decimal(f64::from_str(pair.as_str()).unwrap()),
-        // RULE BOOL MISSING
+        Rule::bool => Literal::Bool(match pair.into_inner().next().unwrap().as_rule(){
+            Rule::true_literal => true,
+            Rule::false_literal => false,
+            _ => unreachable!(),
+        }),
         Rule::list => Literal::List(pair.into_inner().map(build_expression).collect()),
 
         rule => panic!(
