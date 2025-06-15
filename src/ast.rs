@@ -1,3 +1,5 @@
+use pest::pratt_parser::PrattParser;
+
 #[derive(pest_derive::Parser)]
 #[grammar = "haskell.pest"]
 pub struct HaskellParser;
@@ -20,6 +22,16 @@ pub enum Statement {
         body: Body,
     },
     Comment(String),
+}
+
+#[derive(Debug, Clone)]
+pub enum TypeExpr {
+    Int,
+    Float,
+    Char,
+    Bool,
+    List(Box<TypeExpr>),
+    Func(Vec<TypeExpr>),
 }
 
 #[derive(Debug)]
@@ -60,12 +72,25 @@ pub enum Literal {
     List(Vec<Expression>),
 }
 
-#[derive(Debug, Clone)]
-pub enum TypeExpr {
-    Int,
-    Float,
-    Char,
-    Bool,
-    List(Box<TypeExpr>),
-    Func(Vec<TypeExpr>),
+lazy_static::lazy_static! {
+    pub static ref PRATT_PARSER: PrattParser<Rule> = {
+        use pest::pratt_parser::{Assoc::*, Op};
+        use Rule::*;
+
+        PrattParser::new()
+            .op(Op::infix(application, Left))
+            .op(Op::infix(or, Left))
+            .op(Op::infix(and, Left))
+            .op(
+                Op::infix(less_or_equal, Left) | Op::infix(great_or_equal, Left)
+                |Op::infix(lesser, Left) | Op::infix(greater, Left)
+                |Op::infix(equal, Left) | Op::infix(not_equal, Left)
+            )
+            .op(Op::infix(cons, Left) | Op::infix(concat, Left))
+            .op(Op::infix(add, Left) | Op::infix(sub, Left))
+            .op(Op::prefix(negative))
+            .op(Op::infix(mul, Left) | Op::infix(div, Left))
+            .op(Op::infix(exp_int, Left) | Op::infix(exp_float, Left) | Op::infix(exp_frac, Left))
+            .op(Op::infix(composition, Left) | Op::infix(indexing, Left))
+    };
 }
