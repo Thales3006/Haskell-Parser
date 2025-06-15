@@ -21,7 +21,18 @@ pub enum Statement {
         args: Vec<Pattern>,
         body: Body,
     },
+
+    TypeDeclaration {
+        name: String,
+        constructors: Vec<ConstructDecl>,
+    },
     Comment(String),
+}
+
+#[derive(Debug)]
+pub struct ConstructDecl {
+    pub name: String,
+    pub ty: TypeExpr,
 }
 
 #[derive(Debug, Clone)]
@@ -32,6 +43,8 @@ pub enum TypeExpr {
     Bool,
     List(Box<TypeExpr>),
     Func(Vec<TypeExpr>),
+    CustomType(String),
+    Generic(String),
 }
 
 #[derive(Debug)]
@@ -39,6 +52,7 @@ pub enum Pattern {
     Ident(String),
     Literal(Literal),
     Wildcard,
+    Constructor { name: String, args: Vec<Pattern> },
 }
 
 #[derive(Debug)]

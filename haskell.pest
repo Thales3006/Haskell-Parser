@@ -16,10 +16,12 @@ type_declaration = { "data" ~ custom_type ~ "=" ~ constructor_declaration ~ (cas
 definition = { ident_lower ~ arguments ~ body }
 
 constructor_declaration = { ident_upper ~ datatype* }
-constructor = { ident_upper ~pattern* }
+constructor = { bin_constructor | prefix_constructor }
+prefix_constructor = { ident_upper ~ pattern* }
+bin_constructor = { pattern ~ construct_op ~ pattern }
 // function arguments
 arguments = { pattern* }
-pattern = _{ ("(" ~ (bin_op | constructor) ~ ")") | ident | literal | wildcard }
+pattern = _{ ("(" ~ constructor ~ ")") | ident | literal | wildcard }
 wildcard = { "_" }
 
 // function definition
@@ -105,6 +107,7 @@ func_op= _{ composition  | application }
 composition = { "." }
 application = { "$" }
 
+construct_op = _{ cons }
 
 
 
