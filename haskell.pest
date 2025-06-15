@@ -10,18 +10,21 @@ comment = { (!NEWLINE ~ ANY)* }
 
 // function body
 constant = _{ declaration | definition }
-declaration = { ident ~ "::" ~ (func_type | datatype) }
-definition = { ident ~ arguments ~ body }
+declaration = _{ const_declaration | type_declaration }
+const_declaration = { ident_lower ~ "::" ~ func_type }
+type_declaration = { "data" ~ custom_type ~ "=" ~ constructor_declaration ~ (case ~ constructor_declaration)*}
+definition = { ident_lower ~ arguments ~ body }
 
 // function arguments
 arguments = { pattern* }
-pattern = _{ ident | literal | wildcard }
+pattern = _{ ("(" ~ constructor ~ ")") | ident | literal | wildcard }
 wildcard = { "_" }
 
 // function definition
 body = _{ ("=" ~ expression) | guards }
+case = _{ NEWLINE? ~ "|" }
 guards = { guard+ }
-guard = { NEWLINE? ~ "|" ~ (otherwise | expression) ~ "=" ~ expression }
+guard = { case ~ (otherwise | expression) ~ "=" ~ expression }
 
 // evaluabe expressions
 expression = { uni_op? ~ (func_prefix|atom) ~ (func_infix ~ (func_prefix|atom))* }
@@ -31,32 +34,38 @@ atom = _{ ("(" ~ expression ~ ")") | literal | ident }
 func_prefix = { (ident | ("(" ~ bin_op ~ ")")) ~ atom+ }
 func_infix = _{ ("`" ~ ident ~ "`") | bin_op }
 
-// literals, reserved words and variables
-ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+// identifications
+ident = _{ ident_lower | ident_upper }
+ident_lower = @{ ASCII_ALPHA_LOWER ~ (ASCII_ALPHANUMERIC | "_")* }
+ident_upper = @{ ASCII_ALPHA_UPPER ~ (ASCII_ALPHANUMERIC | "_")* }
 
+// literals
 literal = { decimal | integer | bool | list}
 integer = @{ ASCII_DIGIT+ }
 decimal = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 list = { "[" ~ (expression ~ ("," ~ expression)*)? ~ "]" }
-
-otherwise = { "otherwise" }
-
 bool = { true_literal | false_literal }
 true_literal = { "True" }
 false_literal = { "False" }
 
+// reserved words
+otherwise = { "otherwise" }
+
 // types
-datatype = _{ primitive_type | list_type | ("(" ~ func_type ~ ")") }
+datatype = _{ primitive_type | list_type | ("(" ~ datatype~ ")") | custom_type | generic }
+list_type = { "[" ~ datatype ~ "]" }
+func_type = { datatype ~ ("->" ~ datatype)* }
+custom_type = { ident_upper }
+generic = { ident_lower }
+
 primitive_type = _{ int_type | float_type | char_type | bool_type }
-func_type = { datatype ~ ("->" ~ datatype)+ }
 int_type = { "Int" }
 float_type = { "Float" }
 char_type = { "Char" }
 bool_type = { "Bool" }
-list_type = { "[" ~ datatype ~ "]" }
 
+// unary operations
 uni_op = _{ negative }
-
 negative = { "-" }
 
 // binary operations (2 arguments)
@@ -94,6 +103,13 @@ func_op= _{ composition  | application }
 composition = { "." }
 application = { "$" }
 
+// datatypes constructors
+constructor_declaration = { ident_upper ~ datatype* }
+constructor = { bin_constructor | prefix_constructor }
+prefix_constructor = { ident_upper ~ pattern* }
+bin_constructor = { pattern ~ construct_op ~ pattern }
+
+construct_op = _{ cons }
 
 
 
