@@ -8,6 +8,7 @@ add :: Int -> Int
 add n = n+1
 
 -- list constant
+list :: [Int]
 list = [3, -add 3+1]
 
 -- fibonacci with guards

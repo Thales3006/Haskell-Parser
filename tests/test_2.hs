@@ -7,6 +7,6 @@ addtolist (x:xs) = x
 
 data Shape = Circle Shape Int | Shapeless
 
-makeCircle :: Shape -> Shape
+makeCircle :: Shape -> (Shape) 
 makeCircle Shapeless = Shapeless
 makeCircle (Circle n m) = Circle n (m+1)

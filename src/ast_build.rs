@@ -13,10 +13,10 @@ fn build_statement(pair: Pair<Rule>) -> Statement {
     match pair.as_rule() {
         Rule::const_declaration => {
             let mut it = pair.into_inner();
-            Statement::Declaration {
+            Statement::Declaration(Declaration{
                 name: it.next().unwrap().as_str().to_string(),
                 ty: build_type(it.next().unwrap()),
-            }
+            })
         }
         Rule::type_declaration => build_type_declaration(pair),
         Rule::definition => {
@@ -70,7 +70,14 @@ fn build_type(pair: Pair<Rule>) -> TypeExpr {
         Rule::bool_type => TypeExpr::Bool,
 
         Rule::list_type => TypeExpr::List(Box::new(build_type(pair.into_inner().next().unwrap()))),
-        Rule::func_type => TypeExpr::Func(pair.into_inner().map(build_type).collect()),
+        Rule::func_type => {
+            let types: Vec<TypeExpr> = pair.into_inner().map(build_type).collect();
+            if types.len() == 1 {
+                types.into_iter().next().unwrap()
+            } else {
+            TypeExpr::Func(types)
+            }
+        }
         Rule::custom_type => TypeExpr::CustomType(pair.as_str().to_string()),
         Rule::generic => TypeExpr::Generic(pair.as_str().to_string()),
 
@@ -88,19 +95,23 @@ fn build_type_declaration(pair: Pair<Rule>) -> Statement {
     Statement::TypeDeclaration {
         name: name.clone(),
         constructors: it
-            .map(|elem| build_constructor_declaration(elem, TypeExpr::CustomType(name.clone())))
+            .map(|elem| build_constructor_decl(elem, TypeExpr::CustomType(name.clone())))
             .collect(),
     }
 }
 
-fn build_constructor_declaration(pair: Pair<Rule>, datatype: TypeExpr) -> ConstructDecl {
+fn build_constructor_decl(pair: Pair<Rule>, datatype: TypeExpr) -> Declaration {
     let mut it = pair.into_inner();
-    ConstructDecl {
+    Declaration{
         name: it.next().unwrap().as_str().to_string(),
         ty: {
             let mut types: Vec<TypeExpr> = it.map(build_type).collect();
             types.push(datatype);
+            if types.len() == 1 {
+                types.into_iter().next().unwrap()
+            } else {
             TypeExpr::Func(types)
+            }
         },
     }
 }

@@ -11,10 +11,7 @@ pub struct Program {
 
 #[derive(Debug)]
 pub enum Statement {
-    Declaration {
-        name: String,
-        ty: TypeExpr,
-    },
+    Declaration(Declaration),
 
     Definition {
         name: String,
@@ -24,16 +21,16 @@ pub enum Statement {
 
     TypeDeclaration {
         name: String,
-        constructors: Vec<ConstructDecl>,
+        constructors: Vec<Declaration>,
     },
     Comment(String),
 }
 
 #[derive(Debug)]
-pub struct ConstructDecl {
-    pub name: String,
-    pub ty: TypeExpr,
-}
+pub struct Declaration {
+        pub name: String,
+        pub ty: TypeExpr,
+    }
 
 #[derive(Debug, Clone)]
 pub enum TypeExpr {

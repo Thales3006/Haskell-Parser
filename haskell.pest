@@ -11,14 +11,10 @@ comment = { (!NEWLINE ~ ANY)* }
 // function body
 constant = _{ declaration | definition }
 declaration = _{ const_declaration | type_declaration }
-const_declaration = { ident_lower ~ "::" ~ (func_type | datatype) }
+const_declaration = { ident_lower ~ "::" ~ func_type }
 type_declaration = { "data" ~ custom_type ~ "=" ~ constructor_declaration ~ (case ~ constructor_declaration)*}
 definition = { ident_lower ~ arguments ~ body }
 
-constructor_declaration = { ident_upper ~ datatype* }
-constructor = { bin_constructor | prefix_constructor }
-prefix_constructor = { ident_upper ~ pattern* }
-bin_constructor = { pattern ~ construct_op ~ pattern }
 // function arguments
 arguments = { pattern* }
 pattern = _{ ("(" ~ constructor ~ ")") | ident | literal | wildcard }
@@ -56,9 +52,9 @@ false_literal = { "False" }
 otherwise = { "otherwise" }
 
 // types
-datatype = _{ primitive_type | list_type | ("(" ~ func_type ~ ")") | custom_type | generic }
+datatype = _{ primitive_type | list_type | ("(" ~ datatype~ ")") | custom_type | generic }
 list_type = { "[" ~ datatype ~ "]" }
-func_type = { datatype ~ ("->" ~ datatype)+ }
+func_type = { datatype ~ ("->" ~ datatype)* }
 custom_type = { ident_upper }
 generic = { ident_lower }
 
@@ -106,6 +102,12 @@ indexing = { "!!" }
 func_op= _{ composition  | application }
 composition = { "." }
 application = { "$" }
+
+// datatypes constructors
+constructor_declaration = { ident_upper ~ datatype* }
+constructor = { bin_constructor | prefix_constructor }
+prefix_constructor = { ident_upper ~ pattern* }
+bin_constructor = { pattern ~ construct_op ~ pattern }
 
 construct_op = _{ cons }
 
