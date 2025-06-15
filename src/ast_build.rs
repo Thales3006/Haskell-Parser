@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use crate::ast::*;
 
-pub fn build_tree(ast: Pairs<'_, Rule>) -> Program {
+pub fn build_ast(ast: Pairs<'_, Rule>) -> Program {
     Program {
         statements: ast.map(build_statement).collect(),
     }

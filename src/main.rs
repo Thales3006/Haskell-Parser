@@ -5,7 +5,7 @@ use std::fs;
 
 use crate::{
     ast::{HaskellParser, Rule},
-    ast_build::build_tree,
+    ast_build::build_ast,
 };
 use inline_colorization::*;
 use pest::{Parser, iterators::Pairs};
@@ -16,7 +16,7 @@ fn main() {
     let parsed = HaskellParser::parse(Rule::program, file.as_str());
     match parsed {
         Ok(parsed) => {
-            println!("{style_bold}{:#?}{style_reset}", build_tree(parsed));
+            println!("{style_bold}{:#?}{style_reset}", build_ast(parsed));
         }
         Err(err) => {
             println!("{style_bold}{color_red}ERRO! {style_reset}{:#?}", err);
