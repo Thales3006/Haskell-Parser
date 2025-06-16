@@ -54,10 +54,18 @@ fn analyze_decl(
     typ_tab: &mut TypeTab,
 ) -> Result<(), String> {
     if sym_tab.contains_key(&decl.name) {
-        return Err(format!("Symbol: '{}' was declared more than once", decl.name));
+        return Err(format!(
+            "Symbol: '{}' was declared more than once",
+            decl.name
+        ));
     }
 
-    sym_tab.insert(decl.name.clone(), Symbol { ty: decl.ty.clone(), });
+    sym_tab.insert(
+        decl.name.clone(),
+        Symbol {
+            ty: decl.ty.clone(),
+        },
+    );
 
     Ok(())
 }

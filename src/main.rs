@@ -40,7 +40,7 @@ fn code_gen(input: &str) -> Result<String, String> {
     println!("{color_green}Class table: {color_reset}{:#?}", class_tab);
     println!("{color_green}Type table: {color_reset}{:#?}", typ_tab);
     println!("{style_reset}");
-    
+
     Ok("".to_string())
 }
 
