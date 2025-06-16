@@ -1,10 +1,12 @@
 mod ast;
+mod ast_analyse;
 mod ast_build;
 
 use std::fs;
 
 use crate::{
     ast::{HaskellParser, Rule},
+    ast_analyse::analyze_program,
     ast_build::build_ast,
 };
 use inline_colorization::*;
@@ -12,19 +14,37 @@ use pest::{Parser, iterators::Pairs};
 
 fn main() {
     let file = fs::read_to_string("tests/test_0.hs").expect("Error while reading the file");
+    let parsed_code = code_gen(file.as_str());
 
-    let parsed = HaskellParser::parse(Rule::program, file.as_str());
-    match parsed {
-        Ok(parsed) => {
-            println!("{style_bold}{:#?}{style_reset}", build_ast(parsed));
+    match parsed_code {
+        Ok(result) => {
+            println!("{style_bold}{color_yellow}{:?}{style_reset}", result);
         }
         Err(err) => {
-            println!("{style_bold}{color_red}ERRO! {style_reset}{:#?}", err);
+            println!("{style_bold}{color_red}ERROR! {style_reset}{:#?}", err);
         }
     }
 }
 
-pub fn print_ast(ast: Pairs<'_, Rule>, offset: usize) {
+fn code_gen(input: &str) -> Result<String, String> {
+    let parsed = HaskellParser::parse(Rule::program, input).map_err(|e| e.to_string())?;
+
+    let ast = build_ast(parsed);
+
+    println!("{style_bold}");
+    //println!("{color_green}AST: {color_reset}{:#?}", ast);
+
+    let (sym_tab, class_tab, typ_tab) = analyze_program(&ast)?;
+
+    println!("{color_green}Symbol table: {color_reset}{:#?}", sym_tab);
+    println!("{color_green}Class table: {color_reset}{:#?}", class_tab);
+    println!("{color_green}Type table: {color_reset}{:#?}", typ_tab);
+    println!("{style_reset}");
+    
+    Ok("".to_string())
+}
+
+pub fn print_token_tree(ast: Pairs<'_, Rule>, offset: usize) {
     let spaces = if offset > 0 {
         format!("{}|   ", "    ".repeat(offset))
     } else {
@@ -37,7 +57,7 @@ pub fn print_ast(ast: Pairs<'_, Rule>, offset: usize) {
             pair.as_rule(),
             pair.as_str()
         );
-        print_ast(pair.into_inner(), offset + 1);
+        print_token_tree(pair.into_inner(), offset + 1);
     }
 }
 
@@ -56,7 +76,7 @@ mod tests {
         }
 
         assert!(parsed.is_ok());
-        print_ast(parsed.unwrap(), 0);
+        print_token_tree(parsed.unwrap(), 0);
     }
 
     #[test]
