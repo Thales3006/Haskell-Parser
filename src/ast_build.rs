@@ -13,7 +13,7 @@ fn build_statement(pair: Pair<Rule>) -> Statement {
     match pair.as_rule() {
         Rule::const_declaration => {
             let mut it = pair.into_inner();
-            Statement::Declaration(Declaration{
+            Statement::Declaration(Declaration {
                 name: it.next().unwrap().as_str().to_string(),
                 ty: build_type(it.next().unwrap()),
             })
@@ -75,7 +75,7 @@ fn build_type(pair: Pair<Rule>) -> TypeExpr {
             if types.len() == 1 {
                 types.into_iter().next().unwrap()
             } else {
-            TypeExpr::Func(types)
+                TypeExpr::Func(types)
             }
         }
         Rule::custom_type => TypeExpr::CustomType(pair.as_str().to_string()),
@@ -102,7 +102,7 @@ fn build_type_declaration(pair: Pair<Rule>) -> Statement {
 
 fn build_constructor_decl(pair: Pair<Rule>, datatype: TypeExpr) -> Declaration {
     let mut it = pair.into_inner();
-    Declaration{
+    Declaration {
         name: it.next().unwrap().as_str().to_string(),
         ty: {
             let mut types: Vec<TypeExpr> = it.map(build_type).collect();
@@ -110,7 +110,7 @@ fn build_constructor_decl(pair: Pair<Rule>, datatype: TypeExpr) -> Declaration {
             if types.len() == 1 {
                 types.into_iter().next().unwrap()
             } else {
-            TypeExpr::Func(types)
+                TypeExpr::Func(types)
             }
         },
     }

@@ -28,9 +28,9 @@ pub enum Statement {
 
 #[derive(Debug)]
 pub struct Declaration {
-        pub name: String,
-        pub ty: TypeExpr,
-    }
+    pub name: String,
+    pub ty: TypeExpr,
+}
 
 #[derive(Debug, Clone)]
 pub enum TypeExpr {
