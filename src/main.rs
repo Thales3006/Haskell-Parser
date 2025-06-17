@@ -34,7 +34,7 @@ fn code_gen(input: &str) -> Result<String, String> {
     println!("{style_bold}");
     //println!("{color_green}AST: {color_reset}{:#?}", ast);
 
-    let (sym_tab, class_tab, typ_tab) = analyze_program(&ast)?;
+    let (sym_tab, class_tab, typ_tab) = analyze_program(ast)?;
 
     println!("{color_green}Symbol table: {color_reset}{:#?}", sym_tab);
     println!("{color_green}Class table: {color_reset}{:#?}", class_tab);
