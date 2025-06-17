@@ -21,11 +21,11 @@ fn build_statement(pair: Pair<Rule>) -> Statement {
         Rule::type_declaration => build_type_declaration(pair),
         Rule::definition => {
             let mut it = pair.into_inner();
-            Statement::Definition {
+            Statement::Definition(Definition {
                 name: it.next().unwrap().as_str().to_string(),
                 args: it.next().unwrap().into_inner().map(build_pattern).collect(),
                 body: build_body(it.next().unwrap()),
-            }
+            })
         }
         Rule::comment => Statement::Comment(pair.as_str().to_string()),
         Rule::EOI => Statement::Comment("End of Input".to_string()),

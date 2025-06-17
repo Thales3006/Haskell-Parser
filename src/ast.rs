@@ -13,11 +13,7 @@ pub struct Program {
 pub enum Statement {
     Declaration(Declaration),
 
-    Definition {
-        name: String,
-        args: Vec<Pattern>,
-        body: Body,
-    },
+    Definition(Definition),
 
     TypeDeclaration {
         name: String,
@@ -30,6 +26,13 @@ pub enum Statement {
 pub struct Declaration {
     pub name: String,
     pub ty: TypeExpr,
+}
+
+#[derive(Debug)]
+pub struct Definition {
+    pub name: String,
+    pub args: Vec<Pattern>,
+    pub body: Body,
 }
 
 #[derive(Debug, Clone)]
